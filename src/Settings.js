@@ -1,20 +1,24 @@
+//import react and styled components
 import React from "react";
 import styled from "styled-components";
 
+//container for the settings and menu
 const SettingsContainer = styled.div`
   background: #23272a;
   padding: 1em;
+  margin: 1em;
   position: fixed;
   top: 7em;
   right: -1em;
   width: 20%;
-  height: 50%;
+  height: 70%;
 
   color: white;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
 `;
+//parent style for colour customization buttons
 const Button = styled.button`
   width: 6%;
   height: 6%;
@@ -27,11 +31,13 @@ const Button = styled.button`
     outline: none;
   }
 `;
+//container for the colour selection buttons
 const ButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
 `;
 
+//colour selection buttons
 const YButton = styled(Button)`
   background: #fcba03;
 `;
@@ -50,18 +56,22 @@ const PButton = styled(Button)`
 const NButton = styled(Button)`
   background: #000000;
 `;
+
+//styled for names of online users
 const Online = styled.li`
   color: #a5de7e;
   margin: 0.5em;
   margin-top: 1.5em;
 `;
 
+//title style
 const Title = styled.div`
   color: white;
   font-size: 1em;
   margin: 0.5em;
 `;
 
+//settings (menu) component
 function Settings(props) {
   return (
     <SettingsContainer>
@@ -101,10 +111,13 @@ function Settings(props) {
 
       <Title>Online ({props.online.length})</Title>
       {props.online.map(user => (
-        <Online key={user}>{user}</Online>
+        <Online key={user.id}>
+          {user.name} @ {user.id.substring(7, 20)}
+        </Online>
       ))}
     </SettingsContainer>
   );
 }
 
+//export
 export default Settings;
