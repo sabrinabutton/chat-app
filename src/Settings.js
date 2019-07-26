@@ -12,7 +12,7 @@ const SettingsContainer = styled.div`
   right: -1em;
   width: 20%;
   height: 70%;
-
+  overflow-y: scroll;
   color: white;
   border-radius: 8px;
   display: flex;
@@ -29,6 +29,9 @@ const Button = styled.button`
   padding: 1em;
   :focus {
     outline: none;
+  }
+  :hover {
+    cursor: pointer;
   }
 `;
 //container for the colour selection buttons

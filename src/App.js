@@ -3,8 +3,18 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Settings from "./Settings";
 import openSocket from "socket.io-client";
+import EmojiKeys from "./EmojiKeys";
+import Reactions from "./Reactions";
+import Errors from "./Errors";
 let socket = openSocket("http://kan5048:3001");
 let msgsEnd;
+
+//ERRORS
+const msgTooLong =
+  "Messages can only be between 1 and 300 characters. (⟃ ͜ʖ ⟄) ";
+const nameTooLong =
+  "Nickname can only be between 1 and 20 characters and cannot be the same as previous nickname. ( ͡◉ ͜ʖ ͡◉)";
+const reactOnce = "You can only react to a message once. ( ͡~ ͜ʖ ͡°)";
 
 //varible for if typing emit has been sent to avoid lag
 let typing = false;
@@ -20,6 +30,9 @@ const Submit = styled.button`
 
   :focus {
     outline: none;
+  }
+  :hover {
+    cursor: pointer;
   }
 `;
 
@@ -54,7 +67,7 @@ const UserBox = styled(Box)`
 
 //input box for typing messages
 const MsgBox = styled(Box)`
-  width: 90%;
+  width: 85%;
   margin-right: 0.5%;
 `;
 
@@ -80,19 +93,20 @@ const Prompt = styled.div`
 
 //parent styling for containers
 const Container = styled.form`
-  background: #23272a;
   padding: 1em;
   position: fixed;
   display: flex;
 `;
 //container for message sending portion of screen
 const MsgContainer = styled(Container)`
+  background: #23272a;
   bottom: 0;
   width: 100%;
   color: white;
 `;
 //container for user name setting portion of screen
 const UserContainer = styled(Container)`
+  background: #23272a;
   top: 0;
   right: 0;
   width: 20%;
@@ -143,6 +157,28 @@ const ChatBox = styled.div`
   padding: 0;
   box-sizing: border-box;
 `;
+//message components container
+const MsgComponents = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+//styling for showing reactions to messages
+const MsgReactionsBox = styled.div`
+  color: white;
+  margin-top: 0.25em;
+  margin-left: 5.5em;
+  margin-right: 1em;
+  display: flex;
+  flex-direction: row;
+
+  padding: 1em;
+  padding-top: 0.5em;
+  padding-bottom: 0.25em;
+`;
+const MsgReactions = styled.div`
+  padding-right: 0.5em;
+  padding-left: 0.5em;
+`;
 
 //app component
 function App() {
@@ -157,6 +193,10 @@ function App() {
   const [colour, setColour] = useState("#7289da");
   //list of online users
   const [online, setOnline] = useState([]);
+  //current error
+  const [error, setError] = useState(null);
+  //reacted  messages
+  const [reacted, setReacted] = useState([]);
 
   //function to fetch online users
   async function fetchOnline() {
@@ -171,9 +211,13 @@ function App() {
     //prevent reload
     event.preventDefault();
 
-    if (uservalue.length > 0) {
+    if (uservalue.length > 0 && uservalue.length < 20) {
       //emit to backend that user was set and send new user
       socket.emit("set user", uservalue);
+    }
+    //else, send error
+    else {
+      setError(nameTooLong);
     }
   }
 
@@ -181,13 +225,17 @@ function App() {
   function sendMessage(event) {
     //prevent reload
     event.preventDefault();
-    if (msgvalue.length > 0) {
+    if (msgvalue.length > 0 && msgvalue.length < 300) {
       //emit to backend that a message was sent and send the message
       socket.emit("chat message", msgvalue);
       //set typing to false
       typing = false;
       //set the value of the input box for messages to blank (spam prevention)
       setmsgValue("");
+    }
+    //else, send error
+    else {
+      setError(msgTooLong);
     }
   }
 
@@ -206,6 +254,11 @@ function App() {
   //set value userValue state to what is in input bar
   function updateuserValue(event) {
     setuserValue(event.target.value);
+  }
+
+  //function to remove error on x press
+  function removeErrors() {
+    setError(null);
   }
 
   //function to fetch message list from backend api every time a new message is sent
@@ -241,9 +294,33 @@ function App() {
     setColour(c);
   }
 
+  function addEmoji(moji) {
+    setmsgValue(msgvalue + moji);
+    if (!typing) {
+      //emit to backend that user is typing
+      socket.emit("typing");
+      //set typing to true
+      typing = true;
+    }
+  }
+
+  function addReacted(msgIndex) {
+    //if the message was not found in reacted
+    if (msgIndex !== "error") {
+      const local = reacted;
+      local.push(msgIndex);
+      setReacted(local);
+    }
+    //if is error
+    else {
+      setError(reactOnce);
+    }
+  }
+
   return (
     <>
       <TitleBar>(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧</TitleBar>
+      <Errors error={error} removeErrors={removeErrors} />
       <UserContainer onSubmit={setUsername}>
         <Prompt>Nickname</Prompt>
         <UserBox
@@ -256,13 +333,29 @@ function App() {
       </UserContainer>
       <Settings changeColour={changeColour} online={online} />
       <ChatBox>
-        {messages.length !== 0
-          ? messages.map((message, i) =>
+        {messages.slice(messages.length - 50).length !== 0
+          ? messages.slice(messages.length - 50).map((message, i) =>
               message.type === "message" ? (
                 <div key={i}>
                   <Timestamp>{message.time}</Timestamp>
                   <GreyText>{message.user}</GreyText>
-                  <Msg colour={colour}>{message.content}</Msg>
+                  <MsgComponents>
+                    <Msg colour={colour}>{message.content}</Msg>{" "}
+                    <Reactions
+                      index={i}
+                      reacted={reacted}
+                      addReacted={addReacted}
+                    />
+                  </MsgComponents>
+
+                  <MsgReactionsBox>
+                    {message.reactions.map(reaction => (
+                      <MsgReactions key={reaction.emoji}>
+                        {reaction.emoji}
+                        {reaction.amt}
+                      </MsgReactions>
+                    ))}
+                  </MsgReactionsBox>
                 </div>
               ) : (
                 <div key={i}>
@@ -275,13 +368,17 @@ function App() {
       </ChatBox>
 
       <MsgContainer onSubmit={sendMessage}>
+        <EmojiKeys type="button" addEmoji={addEmoji} colour={colour} />
         <MsgBox
           onChange={updatemsgValue}
           value={msgvalue}
           id="m"
           autoComplete="off"
         />
-        <MsgSubmit colour={colour}>SEND</MsgSubmit>
+
+        <MsgSubmit type="submit" colour={colour}>
+          SEND
+        </MsgSubmit>
       </MsgContainer>
 
       <div
