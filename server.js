@@ -77,16 +77,16 @@ io.on("connection", socket => {
       messages.push({
         time: getDate(),
         type: "connection",
-        content: cur.name + " connected"
+        content: cur.name + " connected",
+        reactions: []
       });
-      console.log("message");
+
       //prompt front end to load messages
       io.emit("new message");
       //add user to the list of online user
       online.push(cur);
       cur.tabs += 1;
     } else {
-      console.log("message");
       //prompt front end to load messages
       io.emit("new message");
       //set users tabs to tabs +1
@@ -101,7 +101,8 @@ io.on("connection", socket => {
       messages.push({
         time: getDate(),
         type: "connection",
-        content: cur.name + " is typing..."
+        content: cur.name + " is typing...",
+        reactions: []
       });
       //emit something telling the front end that a new message was sent and that it should fetch messages again
       io.emit("new message");
@@ -117,11 +118,12 @@ io.on("connection", socket => {
         messages.push({
           time: getDate(),
           type: "connection",
-          content: cur.name + " disconnected"
+          content: cur.name + " disconnected",
+          reactions: []
         });
         //remove the user from online
         online.pop(cur);
-        console.log("message");
+
         //emit something telling the front end that a new message was sent and that it should fetch messages again
         io.emit("new message");
       }
@@ -130,7 +132,7 @@ io.on("connection", socket => {
     //when a message is sent
     socket.on("chat message", msg => {
       //only send if message is not blank (spam prevention)
-      if (msg.length > 0) {
+      if (msg.length > 0 && msg.length < 300) {
         //log in server console
         console.log(cur.name + ": " + msg);
 
@@ -141,25 +143,59 @@ io.on("connection", socket => {
           })
           .indexOf(cur.name + " is typing...");
         //remove last instance of (whoever) is typing from the chat log
-        messages.splice(lastTyping);
+
+        messages.splice(lastTyping, 1);
 
         //push message
         messages.push({
           time: getDate(),
           type: "message",
           user: cur.name,
-          content: msg
+          content: msg,
+          reactions: [],
+          reactors: []
         });
-        console.log("message");
+
         //prompt front end to fetch new messages
         io.emit("new message");
+      }
+    });
+
+    //when someone reacts to a message
+    socket.on("reaction", (msg, moji) => {
+      //if is not undefined
+      if (messages[msg] !== undefined) {
+        //if person has not already reacted
+        if (messages[msg].reactors.indexOf(cur.id) === -1) {
+          //find moji in msg
+          const prereacted = messages[msg].reactions
+            .map(emojis => {
+              return emojis.emoji;
+            })
+            .indexOf(moji);
+          //if no one already reacted with this emoji
+          if (prereacted === -1) {
+            //set message index reactions to that emoji
+            messages[msg].reactions.push({ emoji: moji, amt: 1 });
+          }
+          //if was found
+          else {
+            //set message index reactions to that emoji
+            messages[msg].reactions[prereacted].amt += 1;
+          }
+
+          //add reactor to reactors array
+          messages[msg].reactors.push(cur.id);
+          //prompt front end to fetch new messages
+          io.emit("new message");
+        }
       }
     });
 
     //when someone sets their username
     socket.on("set user", user => {
       //only set if name is not same as old and is not blank (spam prevention)
-      if (user.length > 0 && user !== cur.name) {
+      if (user.length > 0 && user !== cur.name && user.length < 20) {
         //variable for previous name
         let old = cur.name;
         //set user's name to recieved name
@@ -170,7 +206,8 @@ io.on("connection", socket => {
         messages.push({
           time: getDate(),
           type: "connection",
-          content: old + " changed their name to " + cur.name
+          content: old + " changed their name to " + cur.name,
+          reactions: []
         });
 
         //set name in online to new name
