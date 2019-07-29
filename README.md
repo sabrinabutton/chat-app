@@ -1,4 +1,5 @@
-
+## Demo
+Click on the link provided at the top of the repository to open the chat-app
 
 ## Development
 
