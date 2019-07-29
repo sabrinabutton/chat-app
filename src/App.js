@@ -6,7 +6,7 @@ import openSocket from "socket.io-client";
 import EmojiKeys from "./EmojiKeys";
 import Reactions from "./Reactions";
 import Errors from "./Errors";
-let socket = openSocket("http://kan5048:3001");
+let socket = openSocket("http://localhost:3001");
 let msgsEnd;
 
 //ERRORS
@@ -200,7 +200,7 @@ function App() {
 
   //function to fetch online users
   async function fetchOnline() {
-    const res = await fetch("http://kan5048:3001/api/online/");
+    const res = await fetch("http://localhost:3001/api/online/");
 
     const results = await res.json();
     setOnline(results);
@@ -264,7 +264,7 @@ function App() {
   //function to fetch message list from backend api every time a new message is sent
   //TODO: make more efficient so only grabs latest message from api (must add message ids?)
   async function fetchMessages() {
-    const res = await fetch("http://kan5048:3001/api/messages/");
+    const res = await fetch("http://localhost:3001/api/messages/");
 
     const results = await res.json();
 

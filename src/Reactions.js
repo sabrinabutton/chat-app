@@ -5,7 +5,7 @@ import * as consts from "./constants";
 import openSocket from "socket.io-client";
 
 const reactions = consts.reactions;
-let socket = openSocket("http://kan5048:3001");
+let socket = openSocket("http://localhost:3001");
 
 const Holder = styled.div`
   display: flex;

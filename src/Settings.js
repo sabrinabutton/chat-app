@@ -115,7 +115,7 @@ function Settings(props) {
       <Title>Online ({props.online.length})</Title>
       {props.online.map(user => (
         <Online key={user.id}>
-          {user.name} @ {user.id.substring(7, 20)}
+       {user.name} 
         </Online>
       ))}
     </SettingsContainer>

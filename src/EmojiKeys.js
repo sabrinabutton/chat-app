@@ -1,6 +1,6 @@
 //im doing this so eric can emoji spam
 //imports
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import * as consts from "./constants";
 const emojiList = consts.emojiList;
@@ -56,7 +56,7 @@ const Emoji = styled.div`
 `;
 
 function EmojiKeys(props) {
-  const [emojis, setEmojis] = useState(emojiList);
+  
   const [show, setShow] = useState("false");
 
   function showHide() {
@@ -71,14 +71,14 @@ function EmojiKeys(props) {
         onClick={() => showHide()}
         colour={props.colour}
       >
-        😄
+        :)
       </EmojiPrompt>
       {show === true ? (
         <EmojiKeyboard>
-          {emojis === undefined ? (
+          {emojiList === undefined ? (
             <>Emojis loading... ◕‿◕</>
           ) : (
-            emojis.map((emoji, i) => (
+            emojiList.map((emoji, i) => (
               <Emoji role="img" key={i} onClick={() => props.addEmoji(emoji)}>
                 {emoji}
               </Emoji>
