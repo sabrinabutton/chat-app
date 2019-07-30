@@ -20,5 +20,7 @@ You will also see any lint errors in the console.
 
 Starts the backend server
 
+### Using the backend
 
+To use the backend, all instances where socket is called as a URL in the front end as http://*********/messages/api, replace the ********* with localhost:3001 or localhost:<port> if you change the port variable in server.js 
 
