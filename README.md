@@ -1,5 +1,5 @@
 ## Note
-A second github page in a new repo to host the backend is in progess. For now, only the front-end can be accesssed with this repo. Since the backend is not hosted, the frontend is not functional.
+Github pages only supports front-end hosting. The server is not currently hosted and thus, currently, only the front end can be accessed with this repo. I am in progress of finding a host for my node server and will update the repo and change the code accordingly so the backend can run through another host.
 
 ## Demo
 Click on the link provided at the top of the repository to open the chat-app.
