@@ -4,7 +4,15 @@ Github pages only supports front-end hosting. The server is not currently hosted
 ## Demo
 Click on the link provided at the top of the repository to open the chat-app.
 
-## Development
+# Development
+
+Before starting, run:
+
+### `yarn start`
+
+To install the node modules.
+
+## Run
 
 In the project directory, you can run:
 
