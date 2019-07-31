@@ -1,3 +1,4 @@
+# Using the chat-app on Github.io
 ## Note
 Github pages only supports front-end hosting. The server is not currently hosted and thus, currently, only the front end can be accessed with this repo. I am in progress of finding a host for my node server and will update the repo and change the code accordingly so the backend can run through another host.
 
