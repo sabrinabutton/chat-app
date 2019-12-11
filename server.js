@@ -229,10 +229,10 @@ function createUser(ip) {
   console.log("New user created @ ", ip);
 }
 
-//set port to 3001 (TODO: set to any available port)
-const port = 3001;
+//set port to 3001 
+const PORT = process.env.PORT || 3000;
 
 //listen on the port provided
-http.listen(port, () => {
-  console.log("Listening on port:", port);
+http.listen(PORT, () => {
+  console.log("Listening on port:", PORT);
 });
